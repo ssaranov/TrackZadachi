@@ -1,6 +1,6 @@
 ﻿namespace TrackZadach.Models
 {
-    public class Task
+    public class Mission
     {
         public int TaskId { get; set; }
 
