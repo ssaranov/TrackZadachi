@@ -11,7 +11,6 @@
         public string HashPassword {  get; set; }
 
         public string Description { get; set; } = string.Empty;
-
-        
+        public string Login { get; set; }
     }
 }
