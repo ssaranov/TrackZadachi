@@ -7,7 +7,7 @@ namespace TrackZadach.Data
     {
         public DbSet<User> Users { get; set; }
 
-        public DbSet<Mission> Tasks { get; set; }
+        public DbSet<Mission> Missions { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
