@@ -1,34 +1,32 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using TrackZadach.Data;
 using TrackZadach.Models;
 using TrackZadach.Service;
 
-namespace SchoolHub.Pages
+namespace StudyNoteProject.Pages.Shared
 {
     public class IndexModel : PageModel
     {
         private readonly AppDbContext _context;
         private readonly PasswordHasher<User> _passwordHasher;
-        private readonly ICurrentDbContext _currentUserService;
+        private readonly ICurrentUserService _currentUserService;
+
         public IndexModel(AppDbContext context, ICurrentUserService currentUserService)
         {
             _context = context;
             _passwordHasher = new PasswordHasher<User>();
-            _currentUserService = _currentUserService;
+            _currentUserService = currentUserService;
         }
         [BindProperty]
         public string RegisterName { get; set; } = string.Empty;
-        [BindProperty]
-        public int? RegisterAge { get; set; }
         [BindProperty]
         public string RegisterLogin { get; set; } = string.Empty;
         [BindProperty]
         public string RegisterPassword { get; set; } = string.Empty;
         [BindProperty]
-        public string RegistrRepeatPassword { get; set; } = string.Empty;
+        public string RegisterRepeatPassword { get; set; } = string.Empty;
 
         [BindProperty]
         public string LoginLogin { get; set; } = string.Empty;
@@ -38,29 +36,20 @@ namespace SchoolHub.Pages
         public bool IsAuthorized { get; set; }
         public string CurrentUserName { get; set; } = string.Empty;
         public string CurrentUserLogin { get; set; } = string.Empty;
-        public int CurrentUserAge { get; set; }
         public string Message { get; set; } = string.Empty;
-
-
         public void OnGet()
         {
             LoadUser();
         }
+
         public IActionResult OnPostRegister()
         {
             LoadUser();
             if (string.IsNullOrEmpty(RegisterName)
                 || string.IsNullOrEmpty(RegisterLogin)
-                || string.IsNullOrEmpty(RegisterPassword)
-                || RegisterAge == null)
+                || string.IsNullOrEmpty(RegisterPassword) == null)
             {
                 Message = "Заполните все поля регистрации";
-                return Page();
-            }
-
-            if (RegisterAge <= 0)
-            {
-                Message = "Возраст должен быть больше 0.";
                 return Page();
             }
 
@@ -69,7 +58,7 @@ namespace SchoolHub.Pages
                 Message = "Пользователь с таким логином уже существует";
                 return Page();
             }
-            if (RegisterPassword != RegistrRepeatPassword || string.IsNullOrEmpty(RegistrRepeatPassword))
+            if (RegisterPassword != RegisterRepeatPassword || string.IsNullOrEmpty(RegisterRepeatPassword))
             {
                 Message = "Пароль не сходиться.";
                 return Page();
@@ -77,8 +66,7 @@ namespace SchoolHub.Pages
             var user = new User
             {
                 Name = RegisterName,
-                Login = RegisterLogin,
-                //Age = RegisterAge.Value
+                Login = RegisterLogin
             };
 
             user.HashPassword = _passwordHasher.HashPassword(user, RegisterPassword);
@@ -86,11 +74,11 @@ namespace SchoolHub.Pages
             _context.Users.Add(user);
             _context.SaveChanges();
 
-            HttpContext.Session.SetInt32("UserId", user.Id);
-            // HttpContext.Session.SetString("UserName", user.Name);
+            _currentUserService.SignIn(HttpContext, user.Id);
 
             return RedirectToPage();
         }
+
         public IActionResult OnPostLogin()
         {
             LoadUser();
@@ -103,7 +91,7 @@ namespace SchoolHub.Pages
 
             if (user == null)
             {
-                Message = "Неверный логин или праоль.";
+                Message = "Неверный логин или пароль.";
                 return Page();
             }
             var res = _passwordHasher.VerifyHashedPassword(
@@ -115,31 +103,18 @@ namespace SchoolHub.Pages
 
             if (res == PasswordVerificationResult.Failed)
             {
-                Message = "Не верный логин или пароль";
+                Message = "Неверный логин или пароль";
                 return Page();
             }
-
-            HttpContext.Session.SetInt32("UserId", user.Id);
-            //HttpContext.Session.SetString("UserName", user.Name);
-            //HttpContext.Session.SetString("UserLogin", user.Login);
+            _currentUserService.SignIn(HttpContext, user.Id);
 
             return RedirectToPage();
         }
-        public IActionResult OnPostLogout()
-        {
-            HttpContext.Session.Clear();
-            return RedirectToPage();
-        }
+
         private void LoadUser()
         {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null)
-            {
-                IsAuthorized = false;
-                return;
-            }
 
-            var user = _context.Users.FirstOrDefault(u => u.Id == userId.Value);
+            var user = _currentUserService.GetCurrentUser(HttpContext); ;
 
             if (user == null)
             {
@@ -150,8 +125,6 @@ namespace SchoolHub.Pages
             IsAuthorized = true;
             CurrentUserName = user.Name;
             CurrentUserLogin = user.Login;
-            //CurrentUserAge = user.Age;
-
         }
     }
 }

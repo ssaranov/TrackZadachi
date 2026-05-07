@@ -1,12 +1,11 @@
-﻿
-using TrackZadach.Models;
+﻿using TrackZadach.Models;
 namespace TrackZadach.Service
 {
     public interface ITaskService
     {
-        List<Mission> GetAllTask();
+        List<Mission> GetAllMissons();
         List<Mission> GetTaskByAuthorId(int authorId);
-        Task? GetTaskById(int auhorId);
+        Mission? GetTaskById(int id);
         void AddTask(Mission project);
         void UpdateTask(Mission project);
         void DeleteTask(Mission project);
