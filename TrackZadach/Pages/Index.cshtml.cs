@@ -5,7 +5,7 @@ using TrackZadach.Data;
 using TrackZadach.Models;
 using TrackZadach.Service;
 
-namespace StudyNoteProject.Pages.Shared
+namespace TrackZadach.Pages.Shared
 {
     public class IndexModel : PageModel
     {
