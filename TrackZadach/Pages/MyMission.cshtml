@@ -1,0 +1,69 @@
+﻿@page
+@model TrackZadach.Pages.MyMissionModel
+@{
+	ViewData["Title"] = "My missions";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-1">
+                My projects
+            </h1>
+            <p class="text-muted mb-0">
+                User: @Model.CurrentUserName
+            </p>
+        </div>
+
+        <span class="badge bg-success fs-6">
+            My projects: @Model.MyMissionsCount
+        </span>
+    </div>
+
+    @if (Model.Missions.Count == 0)
+    {
+                <div class="alert alert-info">
+                    You don't have any projects
+                </div>
+    }
+    else
+    {
+                <div class="row">
+            @foreach (var project in Model.Missions)
+            {
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 shadow-sm">
+                                        <div class="card-body">
+                                            <h4 class="card-title">
+                                @project.NameTask
+                                            </h4>
+                                            <p class="card-text">
+                                @project.DescriptionTask
+                                            </p>
+                                        </div>
+
+                                        <div class="card-footer">
+                                            <small class="d-block text-muted mb-2">
+                                                Created at: @project.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                                            </small>
+                                            <div class="d-flex gap-2">
+                                                <a asp-page="/EditProject" asp-route-id="@project.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    Редактировать
+                                </a>
+
+                                <form method="post" asp-page-handler="Delete" asp-route-itemid="@project.Id">
+                                    <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Delete?');">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
