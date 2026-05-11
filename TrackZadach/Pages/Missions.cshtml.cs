@@ -22,6 +22,8 @@ namespace TrackZadach.Pages
         [BindProperty]
         public string Status { get; set; } = string.Empty;
 
+        public string AuthorId { get; set; }
+
         public List<Mission> Missions { get; set; } = new();
         public int TotalProjectsCount { get; set; }
 
@@ -30,6 +32,7 @@ namespace TrackZadach.Pages
 
         public List<string> Statuses { get; } = new()
         {
+            "New",
             "Current",
             "Completed"
         };
@@ -64,7 +67,12 @@ namespace TrackZadach.Pages
             {
                 NameTask = Name,
                 DescriptionTask = Description,
-                Status = Status
+                Status = Status,
+                CreatedAt = DateTime.Now,
+                AuthorId = userId.Value
+                
+
+
             };
             _context.Missions.Add(mission);
             _context.SaveChanges();

@@ -34,12 +34,11 @@
 
 				<div calss="mb-3">
 					<label class="form-label">Статус</label>
-					<input asp-for="Status" class="form-control" rows="4" />
 					<select asp-for="Status" class="form-select">
 						<option value="">
 							Select Status
 						</option>
-						@foreach (var Status in Model.Status)
+						@foreach (var Status in Model.Statuses)
 						{
 								<option value="@Status">
 								@Status
@@ -52,7 +51,7 @@
 			</form>
 		</div>
 	</div>
-	<h3 class="mb-3">Список задач:</h3>ы
+	<h3 class="mb-3">Список задач:</h3>
 	@if (Model.Missions.Count == 0)
 	{
 			<div class="alert alert-info">
@@ -81,7 +80,7 @@
 								Дата создания: @project.CreatedAt.ToString("dd.MM.yyyy HH:mm")
 								</small>
 
-								<a asp-page="/ProjectDetails" asp-route-id="@project.Id"
+								<a asp-page="/MissionDetails" asp-route-id="@project.Id"
 								class="btn btn-outline-primary btn-sm">
 								Открыть
 								</a>

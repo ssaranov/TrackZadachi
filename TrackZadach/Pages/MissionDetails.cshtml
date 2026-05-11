@@ -1,0 +1,38 @@
+﻿@page
+@model TrackZadach.Pages.MissionDetailsModel
+@{
+	ViewData["Title"] = "Детали задачи";
+}
+<div class="container mt-5">
+    @if (Model.MissionItem != null)
+    {
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h1 class="mb-3">@Model.MissionItem.NameTask</h1>
+
+                        <p class="mb-3">
+                            <span class="badge bg-primary">
+                        @Model.MissionItem.Status
+                            </span>
+                        </p>
+                        <p class="mb-4">@Model.MissionItem.DescriptionTask</p>
+
+                        <hr />
+
+                        <p class="mb-3">
+                            <strong>Дата создания</strong> @Model.MissionItem.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                        </p>
+
+                        <div class="d-flex gap-2">
+                            <a asp-page="/Missions" class="btn btn-secondary">
+                                назад
+                            </a>
+
+                            <a asp-page="/MyMission" class="btn btn-outline-success">
+                                Мои задачи
+                            </a>
+                        </div>
+                    </div>
+                </div>
+    }
+</div>

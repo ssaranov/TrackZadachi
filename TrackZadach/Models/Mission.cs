@@ -10,7 +10,7 @@
 
         public DateTime CreatedAt { get; set; }
         public User? Author { get; set; }
-        public int AuthorId { get; internal set; }
+        public int AuthorId { get; set; }
         public string Status { get; internal set; }
     }
 }
