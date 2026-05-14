@@ -56,11 +56,13 @@ namespace TrackZadach.Pages.Shared
             if (_context.Users.Any(u => u.Login == RegisterLogin))
             {
                 Message = "Пользователь с таким логином уже существует";
+                LoginLogin = string.Empty;
                 return Page();
             }
             if (RegisterPassword != RegisterRepeatPassword || string.IsNullOrEmpty(RegisterRepeatPassword))
             {
                 Message = "Пароль не сходиться.";
+                LoginPassword = string.Empty;
                 return Page();
             }
             var user = new User
@@ -92,6 +94,8 @@ namespace TrackZadach.Pages.Shared
             if (user == null)
             {
                 Message = "Неверный логин или пароль.";
+                LoginLogin = string.Empty;
+                LoginPassword = string.Empty;
                 return Page();
             }
             var res = _passwordHasher.VerifyHashedPassword(
@@ -104,6 +108,8 @@ namespace TrackZadach.Pages.Shared
             if (res == PasswordVerificationResult.Failed)
             {
                 Message = "Неверный логин или пароль";
+                LoginLogin = string.Empty;
+                LoginPassword = string.Empty;
                 return Page();
             }
             _currentUserService.SignIn(HttpContext, user.Id);

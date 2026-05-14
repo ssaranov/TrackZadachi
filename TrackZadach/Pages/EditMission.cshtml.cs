@@ -17,14 +17,14 @@ namespace TrackZadach.Pages
 
 
 
-        [BindProperty, Required, StringLength(100)]
+        [BindProperty, Required]
         public int Id { get; set; }
 
-        [BindProperty]
+        [BindProperty, StringLength(100)]
         public String Name { get; set; } = string.Empty;
-        [BindProperty]
+        [BindProperty, StringLength(100)]
         public String Description { get; set; } = String.Empty;
-        [BindProperty]
+        [BindProperty,Required]
         public string Status { get; set; } = string.Empty;
 
         public string AuthorId { get; set; }

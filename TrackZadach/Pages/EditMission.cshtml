@@ -33,7 +33,7 @@
                     <label class="form-label">Категория</label>
                     <select asp-for="Status" class="form-control">
                         <option value="">Выберите категорию</option>
-                        @foreach (var Status in Model.Status)
+                        @foreach (var Status in Model.Statuses)
                         {
                                     <option value="@Status">@Status</option>
                         }
