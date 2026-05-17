@@ -1,5 +1,4 @@
-﻿
-@model List<TrackZadach.Models.Mission>
+﻿@model List<TrackZadach.Models.Mission>
 @{
 	ViewData["Title"] = "Админка MVC";
 }
@@ -12,7 +11,7 @@
             </p>
         </div>
         <span class="badge bg-black-bark fs-6">
-            Всего проектов: @Model.MymI
+            Всего проектов: @Model.Count
         </span>
     </div>
 
@@ -39,11 +38,10 @@
                 @foreach (var project in Model)
                 {
                             <tr>
-                                <td>@Mission.</td>
-                                <td>@Mission.NameTask</td>
-                                <td>@Mission.DescriptionTask</td>
-                                <td>@Mission.Author?.Name</td>
-                                <td>@Mission.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td>@project.NameTask</td>
+                                <td>@project.DescriptionTask</td>
+                                <td>@project.Author?.Name</td>
+                                <td>@project.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
                                 <td>
                                     <div class="d-flex flex-wrap gap-2">
                                         <a asp-controller="AdminProjects"
