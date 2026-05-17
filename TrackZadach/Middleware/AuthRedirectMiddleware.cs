@@ -23,10 +23,10 @@ namespace TrackZadach.Middleware
                 await _next(context);
                 return;
             }
-            bool isProtectedPage = path.StartsWith("/Projects")
-                || path.StartsWith("/myprojects")
-                || path.StartsWith("/editproject")
-                || path.StartsWith("/adminprojects");
+            bool isProtectedPage = path.StartsWith("/Mission")
+                || path.StartsWith("/MyMission")
+                || path.StartsWith("/EditMission")
+                || path.StartsWith("/AdminProjects");
             bool isAuthenticated = context.Session.GetInt32("UserId") != null;
             if (isProtectedPage && !isAuthenticated)
             {
