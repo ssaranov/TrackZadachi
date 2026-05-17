@@ -17,7 +17,7 @@
 
 			<p class="text-muted">Автор: @Model.Author?.Name</p>
 
-			<form asp-controller="AdminProjects" asp-action="DeleteConfirmed" asp-route-id="@Model.Id" method="post">
+			<form asp-controller="AdminProjects" asp-actio~n="DeleteConfirmed" asp-route-id="@Model.Id" method="post">
 				@Html.AntiForgeryToken();
 
 				<div class="d-flex gap-2">

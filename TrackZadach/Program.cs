@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using StudyNoteProject.Services;
 using TrackZadach.Data;
+using TrackZadach.Middleware;
 using TrackZadach.Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +23,9 @@ builder.Services.AddSession(option =>
     option.Cookie.HttpOnly = true;
     option.Cookie.IsEssential = true;
 });
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 var app = builder.Build();
@@ -32,15 +38,28 @@ if (!app.Environment.IsDevelopment())
 
 app.UseRouting();
 
-app.UseSession();
+app.UseSwagger();
+app.UseSwaggerUI();
 
+
+app.UseSession();
+app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseMiddleware<AuthRedirectMiddleware>();
+
+app.MapControllerRoute
+    (
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
 app.UseAuthorization();
 
+app.MapControllers();
+
 app.MapStaticAssets();
+
 app.MapRazorPages()
    .WithStaticAssets();
 
-app.Run();
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.Run();
