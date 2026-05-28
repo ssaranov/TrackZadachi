@@ -1,116 +1,91 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
 using TrackZadach.Service;
+using TrackZadach.Models;
 
-namespace SchoolHub.Controllers
+namespace TrackZadach.Controllers
 {
+   
+    [Route("[controller]/[action]")]
+    [ApiExplorerSettings(GroupName = "v1")]
     public class AdminProjectsController : Controller
     {
         private readonly ITaskService _taskService;
         private readonly ICurrentUserService _currentUserService;
 
-        public AdminProjectsController(ITaskService projectService, ICurrentUserService currentUserService)
+        public AdminProjectsController(ITaskService taskService, ICurrentUserService currentUserService)
         {
-            _taskService = projectService;
+            _taskService = taskService;
             _currentUserService = currentUserService;
         }
+
+        [HttpGet] 
         public IActionResult Index()
         {
-            if (!_currentUserService.IsAuthenticated(HttpContext))
-            {
-                return RedirectToPage("/Ibdex");
-            }
-            var project = _taskService.GetAllProjects();
-            return View(project);
+            if (!_currentUserService.IsAuthenticated(HttpContext)) return RedirectToPage("/Index");
+
+            var projects = _taskService.GetAllMissons();
+            return View(projects);
         }
+
+        [HttpGet("{id}")] 
         public IActionResult Edit(int id)
         {
-            if (!_currentUserService.IsAuthenticated(HttpContext))
-            {
-                return RedirectToPage("/Ibdex");
-            }
-            var project = _taskService.GetProjectById(id);
-            if (project == null)
-            {
-                return RedirectToAction("/Ibdex");
-            }
-            var viewModel = new 
-            {
-                Id = project.Id,
-                Title = project.Title,
-                Description = project.Description,
-                Category = project.Category,
-                Status = project.Status
-            };
+            if (!_currentUserService.IsAuthenticated(HttpContext)) return RedirectToPage("/Index");
+
+            var project = _taskService.GetMissionById(id);
+            if (project == null) return RedirectToAction("Index");
+
             return View(project);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(AdminProjectEditViewModel model)
+        public IActionResult Edit(Mission model)
         {
-            if (!_currentUserService.IsAuthenticated(HttpContext))
-            {
-                return RedirectToPage("/Ibdex");
-            }
-            if (ModelState.IsValid)
+            if (!_currentUserService.IsAuthenticated(HttpContext)) return RedirectToPage("/Index");
+
+            if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            var project = _projectService.GetProjectById(model.Id);
-            if (project == null)
-            {
-                return RedirectToAction("Index");
-            }
+            var project = _taskService.GetMissionById(model.Id);
+            if (project == null) return RedirectToAction("Index");
 
-            project.Title = model.Title;
-            project.Description = model.Description;
-            project.Category = model.Category;
+            project.NameTask = model.NameTask;
+            project.DescriptionTask = model.DescriptionTask;
             project.Status = model.Status;
 
-            _projectService.UpdateProject(project);
+            _taskService.UpdateMission(project);
             return RedirectToAction("Index");
         }
+
+        [HttpGet("{id}")]
         public IActionResult Delete(int id)
         {
-            if (!_currentUserService.IsAuthenticated(HttpContext))
-            {
-                return RedirectToPage("/Ibdex");
-            }
-            var project = _projectService.GetProjectById(id);
-            if (project == null)
-            {
-                return RedirectToAction("/Ibdex");
-            }
+            if (!_currentUserService.IsAuthenticated(HttpContext)) return RedirectToPage("/Index");
+
+            var project = _taskService.GetMissionById(id);
+            if (project == null) return RedirectToAction("Index");
 
             return View(project);
         }
 
-        [HttpPost]
+        [HttpPost, ActionName("DeleteConfirmed")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(AdminProjectEditViewModel model)
+        public IActionResult DeleteConfirmed(int id)
         {
-            if (!_currentUserService.IsAuthenticated(HttpContext))
+            if (!_currentUserService.IsAuthenticated(HttpContext)) return RedirectToPage("/Index");
+
+            var projectsOfAuthor = _taskService.GetMissionByAuthorId(id);
+            var projectToDelete = projectsOfAuthor.FirstOrDefault();
+
+            if (projectToDelete != null)
             {
-                return RedirectToPage("/Ibdex");
-            }
-            if (ModelState.IsValid)
-            {
-                return View(model);
+                _taskService.DeleteMission(projectToDelete);
             }
 
-            var project = _projectService.GetProjectById(model.Id);
-            if (project == null)
-            {
-                return RedirectToAction("Index");
-            }
-
-            _projectService.DeleteProject(project);
             return RedirectToAction("Index");
         }
-
-
-
     }
 }

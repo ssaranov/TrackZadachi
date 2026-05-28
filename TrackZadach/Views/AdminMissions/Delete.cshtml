@@ -1,0 +1,14 @@
+﻿@model TrackZadach.Models.Mission
+<div class="container mt-5">
+    <div class="card border-danger shadow col-md-6 mx-auto">
+        <div class="card-body text-center">
+            <h2 class="text-danger">Удалить задачу?</h2>
+            <p class="lead">Вы действительно хотите удалить <strong>@Model.NameTask</strong>?</p>
+            <form asp-action="DeleteConfirmed" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger px-4">Да, удалить</button>
+                <a asp-action="Index" class="btn btn-secondary px-4">Нет, оставить</a>
+            </form>
+        </div>
+    </div>
+</div>

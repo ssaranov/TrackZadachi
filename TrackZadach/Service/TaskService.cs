@@ -23,7 +23,7 @@ namespace StudyNoteProject.Services
                 .ToList();
         }
 
-        public List<Mission> GetTaskByAuthorId(int authorId)
+        public List<Mission> GetMissionByAuthorId(int authorId)
         {
             return _context.Missions
                 .Include(p => p.Author)
@@ -33,32 +33,32 @@ namespace StudyNoteProject.Services
                 .ToList();
         }
 
-        public Mission? GetTaskById(int authorId)
+        public Mission? GetMissionById(int authorId)
         {
             return _context.Missions
                 .Include(p => p.Author)
                 .FirstOrDefault(p => p.Id == authorId);
         }
 
-        public void AddTask(Mission project)
+        public void AddMission(Mission project)
         {
             _context.Missions.Add(project);
             _context.SaveChanges();
         }
 
-        public void UpdateTask(Mission project)
+        public void UpdateMission(Mission project)
         {
             _context.Missions.Update(project);
             _context.SaveChanges();
         }
 
-        public void DeleteTask(Mission project)
+        public void DeleteMission(Mission project)
         {
             _context.Missions.Remove(project);
             _context.SaveChanges();
         }
 
-        public bool TaskExists(int id)
+        public bool MissionExists(int id)
         {
             return _context.Missions.Any(p => p.Id == id);
         }

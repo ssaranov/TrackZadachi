@@ -1,0 +1,41 @@
+﻿@model IEnumerable<TrackZadach.Models.Mission>
+@{
+    ViewData["Title"] = "Админка задач";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Админка задач</h1>
+        <span class="badge bg-primary">Всего: @Model.Count()</span>
+    </div>
+
+    <table class="table table-hover border shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Название</th>
+                <th>Статус</th>
+                <th>Автор</th>
+                <th>Дата</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.NameTask</td>
+                    <td><span class="badge bg-info text-dark">@item.Status</span></td>
+                    <td>@item.Author?.Name</td>
+                    <td>@item.CreatedAt.ToString("dd.MM.yyyy")</td>
+                    <td>
+                        <div class="btn-group">
+                            <a asp-controller="AdminMissions" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">Детали</a>
+                            <a asp-controller="AdminMissions" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">Править</a>
+                            <a asp-controller="AdminMissions" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Удалить</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

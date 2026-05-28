@@ -4,11 +4,11 @@ namespace TrackZadach.Service
     public interface ITaskService
     {
         List<Mission> GetAllMissons();
-        List<Mission> GetTaskByAuthorId(int authorId);
-        Mission? GetTaskById(int id);
-        void AddTask(Mission project);
-        void UpdateTask(Mission project);
-        void DeleteTask(Mission project);
-        bool TaskExists(int id);
+        List<Mission> GetMissionByAuthorId(int authorId);
+        Mission? GetMissionById(int id);
+        void AddMission(Mission project);
+        void UpdateMission(Mission project);
+        void DeleteMission(Mission project);
+        bool MissionExists(int id);
     }
 }
