@@ -37,7 +37,7 @@ namespace TrackZadach.Controllers
        
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,NameTask,DescriptionTask,Status,CreatedAt,AuthorId")] Mission mission)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,NameMission,DescriptionMission,Status,CreatedAt,AuthorId")] Mission mission)
         {
             if (id != mission.Id) return NotFound();
 

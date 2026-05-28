@@ -1,91 +1,162 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TrackZadach.Service;
+using Microsoft.Extensions.Configuration.UserSecrets;
+using TrackZadach.Dtos;
 using TrackZadach.Models;
+using TrackZadach.Service;
 
-namespace TrackZadach.Controllers
+namespace SchoolHub.Controllers.Api
 {
-   
-    [Route("[controller]/[action]")]
-    [ApiExplorerSettings(GroupName = "v1")]
-    public class AdminProjectsController : Controller
+    [ApiController]
+    [Route("api/projects")]
+    public class ProjectApiController : ControllerBase
     {
         private readonly ITaskService _taskService;
         private readonly ICurrentUserService _currentUserService;
-
-        public AdminProjectsController(ITaskService taskService, ICurrentUserService currentUserService)
+        public ProjectApiController(ITaskService taskService, ICurrentUserService currentUserService)
         {
             _taskService = taskService;
             _currentUserService = currentUserService;
         }
-
-        [HttpGet] 
-        public IActionResult Index()
+        [HttpGet]
+        public ActionResult<List<ProjectDto>> GetAll()
         {
-            if (!_currentUserService.IsAuthenticated(HttpContext)) return RedirectToPage("/Index");
-
-            var projects = _taskService.GetAllMissons();
-            return View(projects);
-        }
-
-        [HttpGet("{id}")] 
-        public IActionResult Edit(int id)
-        {
-            if (!_currentUserService.IsAuthenticated(HttpContext)) return RedirectToPage("/Index");
-
-            var project = _taskService.GetMissionById(id);
-            if (project == null) return RedirectToAction("Index");
-
-            return View(project);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Mission model)
-        {
-            if (!_currentUserService.IsAuthenticated(HttpContext)) return RedirectToPage("/Index");
-
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            var project = _taskService.GetMissionById(model.Id);
-            if (project == null) return RedirectToAction("Index");
-
-            project.NameTask = model.NameTask;
-            project.DescriptionTask = model.DescriptionTask;
-            project.Status = model.Status;
-
-            _taskService.UpdateMission(project);
-            return RedirectToAction("Index");
+            var missions = _taskService.GetAllMissons();
+            var result = missions.Select(mission => ToDto(mission)).ToList();
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public IActionResult Delete(int id)
+        public ActionResult<List<ProjectDto>> GetById(int id)
         {
-            if (!_currentUserService.IsAuthenticated(HttpContext)) return RedirectToPage("/Index");
-
-            var project = _taskService.GetMissionById(id);
-            if (project == null) return RedirectToAction("Index");
-
-            return View(project);
-        }
-
-        [HttpPost, ActionName("DeleteConfirmed")]
-        [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
-        {
-            if (!_currentUserService.IsAuthenticated(HttpContext)) return RedirectToPage("/Index");
-
-            var projectsOfAuthor = _taskService.GetMissionByAuthorId(id);
-            var projectToDelete = projectsOfAuthor.FirstOrDefault();
-
-            if (projectToDelete != null)
+            var mission = _taskService.GetMissionById(id);
+            if (mission == null)
             {
-                _taskService.DeleteMission(projectToDelete);
+                return NotFound(new
+                {
+                    message = "Проект не найден"
+                });
+            }
+            return Ok(ToDto(mission));
+        }
+        [HttpPost]
+        public ActionResult<List<ProjectDto>> Create(CreateProjectDto dto)
+        {
+            var userId = _currentUserService.GetCurrentUserId(HttpContext);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    message = "Для создание проекта нужно войти в аккаунт"
+                });
+            }
+            var project = new Mission
+            {
+                NameTask = dto.NameTask,
+                DescriptionTask = dto.DescriptionTask,
+                Status = dto.Status,
+                CreatedAt = DateTime.Now,
+                AuthorId = userId.Value
+            };
+            _taskService.AddMission(project);
+            var createdProject = _taskService.GetMissionById(project.Id);
+
+            if (createdProject == null)
+            {
+                return BadRequest(new
+                {
+                    message = "Проект был создан, но его не удалось загрузить"
+                });
             }
 
-            return RedirectToAction("Index");
+            return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = createdProject.Id },
+                    ToDto(createdProject)
+                );
+        }
+
+        [HttpPut("{id}")]
+        public ActionResult<List<ProjectDto>> Update(int id, UpdateMissionDto dto)
+        {
+            var userId = _currentUserService.GetCurrentUserId(HttpContext);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    message = "Для редактирование проекта нужно войти в аккаунт"
+                });
+            }
+            var project = _taskService.GetMissionById(id);
+
+            if (project == null)
+            {
+                return NotFound(new
+                {
+                    message = "Проект не найден"
+                });
+            }
+            if (project.AuthorId != userId.Value)
+            {
+                return Forbid();
+            }
+            if (project.Status == "Завершён")
+            {
+                return BadRequest(new
+                {
+                    message = "Завершённый роект нельзя ркдактировать"
+                });
+            }
+            project.NameTask = dto.NameTask;
+            project.DescriptionTask = dto.DescriptionTask;
+            project.Status = dto.Status;
+            _taskService.UpdateMission(project);
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public ActionResult<List<ProjectDto>> Delete(int id)
+        {
+            var userId = _currentUserService.GetCurrentUserId(HttpContext);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    message = "Для удаления проекта нужно войти в аккаунт"
+                });
+            }
+            var project = _taskService.GetMissionById(id);
+
+            if (project == null)
+            {
+                return NotFound(new
+                {
+                    message = "Проект не найден"
+                });
+            }
+            if (project.AuthorId != userId.Value)
+            {
+                return Forbid();
+            }
+
+            _taskService.DeleteMission(project);
+
+            return NoContent();
+        }
+
+
+        public static ProjectDto ToDto(Mission mission)
+        {
+            return new ProjectDto
+            {
+                Id = mission.Id,
+                NameTask = mission.NameTask,
+                DescriptionTask = mission.DescriptionTask,
+                Status = mission.Status,
+                CreatedAt = mission.CreatedAt,
+                AuthorId = mission.AuthorId,
+                AutorName = mission.Author?.Name
+            };
         }
     }
 }
